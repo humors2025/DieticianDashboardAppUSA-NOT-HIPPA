@@ -601,6 +601,61 @@ const fetchExistingFoodData = async () => {
 
 
 
+// const handleSubmit = async () => {
+//   if (!isSubmitEnabled || isSubmitting || isLoading) return;
+
+//   setIsSubmitting(true);
+
+//   try {
+//     const { start_date, end_date } = parseWeekDates(selectedWeekText);
+
+//     if (!start_date || !end_date) {
+//       toast.error("Invalid date format in week selection");
+//       return;
+//     }
+
+//     const daysArray = buildDaysArray(); // can be []
+
+//     // ✅ Allow empty submit ONLY for previous week (to clear backend)
+//     const allowEmptyClear = isPreviousWeek;
+
+//     if (daysArray.length === 0 && !allowEmptyClear) {
+//       toast.error("Please add at least one food item before submitting.");
+//       return;
+//     }
+
+//     // ✅ Always save (even empty) so backend removes old foods
+//     const saveResp = await saveWeeklyFoodJson(
+//       dieticianId,
+//       profileId,
+//       start_date,
+//       end_date,
+//       { days: daysArray } // [] means clear
+//     );
+
+//     if (daysArray.length === 0) {
+//       toast.success("All food items removed for this week.");
+//     } else if (saveResp?.action === "inserted") {
+//       toast.success("Food items inserted successfully!");
+//     } else if (saveResp?.action === "updated") {
+//       toast.success("Food items updated successfully!");
+//     } else {
+//       toast.success(saveResp?.message || "Food submitted successfully!");
+//     }
+
+//     // ✅ Let MealLogged refresh (send empty also)
+//     await Promise.resolve(onUploaded?.(daysArray));
+
+//     onClose?.();
+//   } catch (e) {
+//     console.error("Submit error:", e);
+//     toast.error(e?.message || "Failed to submit");
+//   } finally {
+//     setIsSubmitting(false);
+//   }
+// };
+
+
 const handleSubmit = async () => {
   if (!isSubmitEnabled || isSubmitting || isLoading) return;
 
@@ -614,9 +669,9 @@ const handleSubmit = async () => {
       return;
     }
 
-    const daysArray = buildDaysArray(); // can be []
-
-    // ✅ Allow empty submit ONLY for previous week (to clear backend)
+    const daysArray = buildDaysArray(); // [{day_no: 1, items: [...]}, ...]
+    
+    // Allow empty submit ONLY for previous week (to clear backend)
     const allowEmptyClear = isPreviousWeek;
 
     if (daysArray.length === 0 && !allowEmptyClear) {
@@ -624,13 +679,24 @@ const handleSubmit = async () => {
       return;
     }
 
-    // ✅ Always save (even empty) so backend removes old foods
+    // FORMAT 1: For save_weekly_food_json.php - expects food_json with days array
+    const foodJsonForSave = { days: daysArray };
+    
+    console.log("Saving to save_weekly_food_json.php:", {
+      dieticianId,
+      profileId,
+      start_date,
+      end_date,
+      food_json: foodJsonForSave
+    });
+
+    // Save to database first
     const saveResp = await saveWeeklyFoodJson(
       dieticianId,
       profileId,
       start_date,
       end_date,
-      { days: daysArray } // [] means clear
+      foodJsonForSave // This matches what save_weekly_food_json.php expects
     );
 
     if (daysArray.length === 0) {
@@ -643,8 +709,24 @@ const handleSubmit = async () => {
       toast.success(saveResp?.message || "Food submitted successfully!");
     }
 
-    // ✅ Let MealLogged refresh (send empty also)
-    await Promise.resolve(onUploaded?.(daysArray));
+    // FORMAT 2: For weekly_analysis_complete1.php - needs days in different format
+    // Convert to {day1: [...], day2: [...]} format
+    const daysForAnalysis = {};
+    daysArray.forEach(day => {
+      daysForAnalysis[`day${day.day_no}`] = day.items;
+    });
+    
+    console.log("Sending to MealLogged for analysis:", {
+      daysArray: daysArray, // Keep this format for your internal state
+      daysForAnalysis: daysForAnalysis // This would be used by weekly_analysis_complete1.php
+    });
+
+    // Pass both formats to MealLogged so it can decide which to use
+    // You can modify MealLogged to use the appropriate format based on the API
+    await Promise.resolve(onUploaded?.({
+      daysArray: daysArray, // For your internal state
+      daysForAnalysis: daysForAnalysis // For weekly_analysis_complete1.php
+    }));
 
     onClose?.();
   } catch (e) {
@@ -654,80 +736,6 @@ const handleSubmit = async () => {
     setIsSubmitting(false);
   }
 };
-
-
-
-// const handleSubmit = async () => {
-//   // ✅ For previous week, isSubmitEnabled will be true (because of your checkSubmitAvailability)
-//   if (!isSubmitEnabled || isSubmitting || isLoading) return;
-
-//   setIsSubmitting(true);
-
-//   try {
-//     const { start_date, end_date } = parseWeekDates(selectedWeekText);
-
-//     if (!start_date || !end_date) {
-//       toast.error("Invalid date format in week selection");
-//       return;
-//     }
-
-//     const daysArray = buildDaysArray(); // uses dayFoods state
-
-//     if (daysArray.length === 0) {
-//       toast.error("Please add at least one food item before submitting.");
-//       return;
-//     }
-
-//     // ✅ (Optional) just for your verification
-//     const daysObject = convertToDaysObject(daysArray);
-
-//     console.log("SUBMIT -> Draft Payload:", {
-//       dietitian_id: dieticianId,
-//       profile_id: profileId,
-//       start_date,
-//       end_date,
-//       food_json: { days: daysArray },
-//     });
-
-//     console.log("SUBMIT -> Converted Payload for analysis:", {
-//       dietician_id: dieticianId,
-//       profile_id: profileId,
-//       start_date,
-//       end_date,
-//       days: daysObject,
-//     });
-
-//     // ✅ IMPORTANT: Since you hide "Save as Draft" for previous week,
-//     // Submit must ALSO save to DB before analysis.
-//     const saveResp = await saveWeeklyFoodJson(
-//       dieticianId,
-//       profileId,
-//       start_date,
-//       end_date,
-//       { days: daysArray }
-//     );
-
-//     // ✅ Friendly toast
-//     if (saveResp?.action === "inserted") {
-//       toast.success("Food items inserted successfully!");
-//     } else if (saveResp?.action === "updated") {
-//       toast.success("Food items updated successfully!");
-//     } else {
-//       toast.success(saveResp?.message || "Food submitted successfully!");
-//     }
-
-//     // ✅ Keep MealLogged unchanged:
-//     // send daysArray so MealLogged can normalize and call fetchWeeklyAnalysisComplete1
-//     await Promise.resolve(onUploaded?.(daysArray));
-
-//     onClose?.();
-//   } catch (e) {
-//     console.error("Submit error:", e);
-//     toast.error(e?.message || "Failed to submit");
-//   } finally {
-//     setIsSubmitting(false);
-//   }
-// };
 
 
 
