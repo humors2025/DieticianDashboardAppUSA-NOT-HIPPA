@@ -646,18 +646,36 @@ setApiMessage({
     setDaysPayload({});
   }, [selectedWeekIdx, currentWeekIdx]);
 
+  // useEffect(() => {
+  //   if (selectedWeekIdx === null) return;
+
+  //   if (selectedWeekIdx < visibleWeekStart) {
+  //     setVisibleWeekStart(selectedWeekIdx);
+  //     return;
+  //   }
+
+  //   if (selectedWeekIdx >= visibleWeekStart + visibleWeeksCount) {
+  //     setVisibleWeekStart(Math.max(0, selectedWeekIdx - (visibleWeeksCount - 1)));
+  //   }
+  // }, [selectedWeekIdx, visibleWeekStart]);
+
+
+
+
   useEffect(() => {
-    if (selectedWeekIdx === null) return;
+  if (selectedWeekIdx === null) return;
 
-    if (selectedWeekIdx < visibleWeekStart) {
-      setVisibleWeekStart(selectedWeekIdx);
-      return;
+  setVisibleWeekStart((prev) => {
+    if (selectedWeekIdx < prev) return selectedWeekIdx;
+    if (selectedWeekIdx >= prev + visibleWeeksCount) {
+      return Math.max(0, selectedWeekIdx - (visibleWeeksCount - 1));
     }
+    return prev;
+  });
+}, [selectedWeekIdx, visibleWeeksCount]);
 
-    if (selectedWeekIdx >= visibleWeekStart + visibleWeeksCount) {
-      setVisibleWeekStart(Math.max(0, selectedWeekIdx - (visibleWeeksCount - 1)));
-    }
-  }, [selectedWeekIdx, visibleWeekStart]);
+
+
 
   const canGoNext = visibleWeekStart + visibleWeeksCount < (weeks?.length || 0);
   const canGoPrev = visibleWeekStart > 0;
