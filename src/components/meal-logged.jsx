@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { fetchWeeklyAnalysisComplete1 } from "../services/authService";
+import { fetchWeeklyAnalysisComplete1, fetchSavedWeeklyFoodJson } from "../services/authService";
 import { checkWeeklyAnalysisService } from "../services/authService";
 import CreatePlanPopUp from "./pop-folder/create-plan-popup";
 import MealSidebar from "./meal-sidebar";
@@ -17,6 +17,7 @@ export default function MealLogged() {
   const [error, setError] = useState(null);
   const [errorType, setErrorType] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [savedFoodsTotal, setSavedFoodsTotal] = useState(0);
   // ✅ FIXED: Initialize with 0
   const [visibleWeekStart, setVisibleWeekStart] = useState(0);
 
@@ -172,6 +173,9 @@ export default function MealLogged() {
 
   const MSG_NO_WEEKLY_FULL = "No weekly analysis found. Please add food to generate analysis.";
 const MSG_NO_WEEKLY_SHORT = "No weekly analysis found.";
+const MSG_WEEKLY_ANALYSIS_TIMEOUT =
+  "We are unable to process your weekly analysis right now.\nPlease try again in a few moments.";
+
 
 
 
@@ -415,6 +419,16 @@ const MSG_NO_WEEKLY_SHORT = "No weekly analysis found.";
 //     setLoading(false);
 //   }
 // };
+
+ const getTotalFoodsFromSavedJson = (resp) => {
+    const days = resp?.data?.food_json?.days;
+    if (!Array.isArray(days)) return 0;
+    return days.reduce((sum, day) => {
+      const items = Array.isArray(day?.items) ? day.items : [];
+      return sum + items.length;
+    }, 0);
+  };
+
 
 
 const fetchWeeklyAnalysis = async (startDate, endDate, dietPlanId, daysPayload) => {
@@ -680,14 +694,95 @@ const fetchWeeklyAnalysis = async (startDate, endDate, dietPlanId, daysPayload) 
       }
     }
 
-  } catch (err) {
-    console.error("API Error:", err);
-    setError(err?.message || "Failed to fetch weekly analysis");
+  }
+  
+  // catch (err) {
+  //   console.error("API Error:", err);
+  //   setError(err?.message || "Failed to fetch weekly analysis");
+  //   setWeeklyAnalysisData([]);
+  // } 
+  catch (err) {
+  console.error("API Error:", err);
+
+  const timeoutFromBackend =
+    err?.response?.data?.error === "Network error (weekly_analysis API)" &&
+    String(err?.response?.data?.details || "").includes("Operation timed out");
+
+  const timeoutFromResponseObject =
+    err?.error === "Network error (weekly_analysis API)" &&
+    String(err?.details || "").includes("Operation timed out");
+
+  const timeoutFromMessage =
+    String(err?.message || "").toLowerCase().includes("timeout") ||
+    String(err?.message || "").includes("25002");
+
+  if (timeoutFromBackend || timeoutFromResponseObject || timeoutFromMessage) {
     setWeeklyAnalysisData([]);
-  } finally {
+    setApiMessage({ message: MSG_WEEKLY_ANALYSIS_TIMEOUT });
+    setError(null);
+    return;
+  }
+
+  setError(err?.message || "Failed to fetch weekly analysis");
+  setWeeklyAnalysisData([]);
+} finally {
     setLoading(false);
   }
 };
+
+
+useEffect(() => {
+  const activePlan = clientProfile?.plans_summary?.active?.[0];
+
+  let dietPlanId = null;
+  let planStart = null;
+  let planEnd = null;
+
+  if (activePlan) {
+    dietPlanId = activePlan.id;
+    planStart = toLocalMidnight(activePlan.plan_start_date);
+    planEnd = toLocalMidnight(activePlan.plan_end_date);
+  }
+
+  const weekIdxToUse = selectedWeekIdx === null ? currentWeekIdx : selectedWeekIdx;
+  const range = getWeekDateRange(weekIdxToUse);
+  if (!range) return;
+
+  let startDateObj = range.start;
+  let endDateObj = range.end;
+
+  if (planStart && startDateObj < planStart) startDateObj = planStart;
+  if (planEnd && endDateObj > planEnd) endDateObj = planEnd;
+
+  const startDate = formatDateForApi(startDateObj);
+  const endDate = formatDateForApi(endDateObj);
+
+  // ✅ 1) fetch saved weekly food json and compute total items
+  (async () => {
+    try {
+      const resp = await fetchSavedWeeklyFoodJson(
+        clientProfile?.profile_id,
+        startDate,
+        endDate,
+        clientProfile?.dietician_id
+      );
+
+      const total = getTotalFoodsFromSavedJson(resp);
+      setSavedFoodsTotal(total);
+    } catch (e) {
+      setSavedFoodsTotal(0);
+    }
+  })();
+
+  // ✅ 2) your existing analysis call
+  fetchWeeklyAnalysis(startDate, endDate, dietPlanId, daysPayload);
+}, [
+  clientProfile,
+  selectedWeekIdx,
+  currentWeekIdx,
+  weeks?.length ?? 0,
+  daysPayload
+]);
 
 
 
@@ -833,9 +928,13 @@ const hideAddFoodButton =
   apiMessage?.message?.includes("No test taken in last 72 hrs") ||
   apiMessage?.end_date ||
   apiMessage?.message?.includes("No data available for") ||
-  (messageNoWeeklyAnalysis && !allowAddFoodForThisMessage);
+  // (messageNoWeeklyAnalysis && !allowAddFoodForThisMessage);
+  (messageNoWeeklyAnalysis && apiMessage?.message !== MSG_NO_WEEKLY_SHORT && !allowAddFoodForThisMessage);
 
-const showAddFoodButton = !hideAddFoodButton;
+
+  const shouldHideAddFoodBecauseSavedItems = Number(savedFoodsTotal) > 0;
+
+  const showAddFoodButton = !hideAddFoodButton && !shouldHideAddFoodBecauseSavedItems;
 
 
 
@@ -1047,7 +1146,23 @@ const showAddFoodButton = !hideAddFoodButton;
                 Add Food
               </button>
             )}
+
+
+     
+   {Number(savedFoodsTotal) > 0 && (
+<div className="flex flex-col gap-[15px] bg-white px-5 py-[19px] rounded-[8px]">
+    <p className="text-[#252525] text-[25px] font-semibold leading-[126%] tracking-[0.5px]">{savedFoodsTotal}</p>
+<div className="flex gap-[15px]">
+  <p className="text-[#535359] text-[10px] font-semibold leading-[110%] tracking-[-0.2px]">Food Added</p>
+  <p 
+  className="text-[#308BF9] text-[10px] font-semibold leading-[110%] tracking-[-0.2px] cursor-pointer"
+   onClick={handleCreatePlanClick}
+  >View</p>
+</div>
+</div>
+      )}    
           </div>
+
         )}
 
         {showNoDataState && (
