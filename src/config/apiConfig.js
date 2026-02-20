@@ -31,7 +31,8 @@ export const API_ENDPOINTS = {
   },
   MEALANALYSIS:{
  WEEKLYANALYSISCOMPLETE:"/dietitian/api/web/weekly_analysis_complete.php",
- WEEKLYANALYSISCOMPLETE1:"/dietitian/api/web/weekly_analysis_complete1.php",
+//  WEEKLYANALYSISCOMPLETE1:"/dietitian/api/web/weekly_analysis_complete1.php",
+ WEEKLYANALYSISCOMPLETE1:"/dietitian/api/web/weekly_analysis_complete_lambda.php",
  CHECKWEEKLYANALYSIS:"/dietitian/api/web/check_weekly_analysis.php",
  ADDFOOD:"/dietitian/api/web/save_weekly_food_json.php",
  GETFOOD:"/dietitian/api/web/get_save_weekly_food_json.php"
