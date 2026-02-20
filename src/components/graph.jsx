@@ -1,6 +1,6 @@
 // "use client";
 
-// import { useMemo } from "react";
+// import { useMemo, useRef } from "react";
 // import { Line } from "react-chartjs-2";
 // import {
 //   Chart as ChartJS,
@@ -44,7 +44,6 @@
 
 // ChartJS.register(SoftShadow);
 
-// // Helper: convert hex -> rgba string
 // const hexToRgba = (hex, alpha = 1) => {
 //   let c = hex.replace("#", "");
 //   if (c.length === 3) {
@@ -60,198 +59,275 @@
 //   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 // };
 
-// // Helper: get line color based on title + value
-// const getColorByScore = (type, value, fallback = "#DA5747") => {
+// // const getColorByScore = (type, value, fallback = "#DA5747") => {
+// //   const v = Number(value) || 0;
+
+// //   switch (type) {
+// //     case "Absorptive Metabolism Score":
+// //       if (v > 80) return "#3FAF58";
+// //       if (v >= 50) return "#FFC412";
+// //       return "#DA5747";
+
+// //     case "Fermentative Metabolism Score":
+// //       if (v < 30) return "#3FAF58";
+// //       if (v <= 35) return "#FFC412";
+// //       return "#DA5747";
+
+// //     case "Fat Metabolism Score":
+// //       if (v > 80) return "#3FAF58";
+// //       if (v >= 70) return "#FFC412";
+// //       return "#DA5747";
+
+// //     case "Glucose Metabolism Score":
+// //       if (v < 40) return "#3FAF58";
+// //       if (v <= 60) return "#FFC412";
+// //       return "#DA5747";
+
+// //     case "Hepatic Stress Score":
+// //       if (v < 30) return "#3FAF58";
+// //       if (v <= 60) return "#FFC412";
+// //       return "#DA5747";
+
+// //     case "Detoxification Metabolism Score":
+// //       if (v > 80) return "#3FAF58";
+// //       if (v >= 50) return "#FFC412";
+// //       return "#DA5747";
+
+// //     default:
+// //       return fallback;
+// //   }
+// // };
+
+
+// const getColorByScore = (title, value, fallback = "#E48326") => {
 //   const v = Number(value) || 0;
 
-//   switch (type) {
-//     case "Absorptive Metabolism Score":
-//       if (v > 80) return "#3FAF58";
-//       if (v >= 50) return "#FFC412";
-//       return "#DA5747";
+//   const t = String(title || "").trim().toLowerCase();
 
-//     case "Fermentative Metabolism Score":
-//       if (v < 30) return "#3FAF58";
-//       if (v <= 35) return "#FFC412";
-//       return "#DA5747";
-
-//     case "Fat Metabolism Score":
-//       if (v > 80) return "#3FAF58";
-//       if (v >= 70) return "#FFC412";
-//       return "#DA5747";
-
-//     case "Glucose Metabolism Score":
-//       if (v < 40) return "#3FAF58";
-//       if (v <= 60) return "#FFC412";
-//       return "#DA5747";
-
-//     case "Hepatic Stress Score":
-//       if (v < 30) return "#3FAF58";
-//       if (v <= 60) return "#FFC412";
-//       return "#DA5747";
-
-//     case "Detoxification Metabolism Score":
-//       if (v > 80) return "#3FAF58";
-//       if (v >= 50) return "#FFC412";
-//       return "#DA5747";
-
-//     default:
-//       return fallback;
+//   // Nutrient Utilization Trend (absorptive): red 0-50, yellow 50-80, green 80-100
+//   if (t === "nutrient utilization trend") {
+//     if (v > 80) return "#3FAF58";
+//     if (v >= 50) return "#FFC412";
+//     return "#E48326";
 //   }
+
+//   // Digestive Activity Trend (fermentative): green 0-20, yellow 20-30, red 30-100
+//   if (t === "digestive activity trend") {
+//     if (v < 20) return "#3FAF58";
+//     if (v <= 30) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   // Fuel Utilization Trend (fat): red 0-70, yellow 70-80, green 80-100
+//   if (t === "fuel utilization trend") {
+//     if (v > 80) return "#3FAF58";
+//     if (v >= 70) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   // Energy Source Trend (glucose): green 0-20, yellow 20-30, red 30-100
+//   if (t === "energy source trend") {
+//     if (v < 20) return "#3FAF58";
+//     if (v <= 30) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   // Recovery Activity Trend (detoxification): red 0-50, yellow 50-80, green 80-100
+//   if (t === "recovery activity trend") {
+//     if (v > 80) return "#3FAF58";
+//     if (v >= 50) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   // Metabolic Load Trend (hepatic stress): green 0-20, yellow 20-30, red 30-100
+//   if (t === "metabolic load trend") {
+//     if (v < 20) return "#3FAF58";
+//     if (v <= 30) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   return fallback;
 // };
+
+
+
 
 // export default function Graph({
 //   title = "",
 //   labels = [],
 //   values = [],
-//   color = "#DA5747", // fallback if title not matched
-//   showGradient
+//   color = "#E48326",
+//   showGradient,
 // }) {
+//   // const isSecondScore =
+//   //   title === "Fermentative Metabolism Score" ||
+//   //   title === "Glucose Metabolism Score" ||
+//   //   title === "Detoxification Metabolism Score";
 
-//   // 🔹 THIS decides "second graph" behaviour
 //   const isSecondScore =
-//     title === "Fermentative Metabolism Score" ||
-//     title === "Glucose Metabolism Score" ||
-//     title === "Detoxification Metabolism Score";
+//   title === "Digestive Activity Trend" ||
+//   title === "Energy Source Trend" ||
+//   title === "Metabolic Load Trend";
 
 
-//      const shouldShowGradient =
+//   const shouldShowGradient =
 //     typeof showGradient === "boolean" ? showGradient : !isSecondScore;
 
-
-//   // latest value decides the color bucket
 //   const lastRawValue = values?.length ? values[values.length - 1] : 0;
 //   const lastNum =
 //     typeof lastRawValue === "string" ? Number(lastRawValue) : lastRawValue;
+
 //   const chosenColor = getColorByScore(title, lastNum, color);
 
-//   const data = useMemo(
-//     () => ({
+//   // ✅ convert values once (stable array for chart)
+//   const numericValues = useMemo(() => {
+//     return (values || []).map((v) => {
+//       const n = typeof v === "string" ? Number(v) : v;
+//       return Number.isFinite(n) ? n : 0;
+//     });
+//   }, [values]);
+
+//   // ✅ Keep a gradient cache so it doesn't recreate every render
+//   const gradientRef = useRef(null);
+//   const gradientKeyRef = useRef("");
+
+//   const data = useMemo(() => {
+//     return {
 //       labels,
 //       datasets: [
 //         {
 //           label: "Score",
-//           data: values.map((v) => {
-//             const numValue = typeof v === "string" ? Number(v) : v;
-//             return isNaN(numValue) ? 0 : numValue;
-//           }),
+//           data: numericValues,
 //           borderColor: chosenColor,
 //           borderWidth: 3,
-//           pointRadius: 3,                // 👈 visible points on all data
-//           pointHoverRadius: 5,           // bigger on hover
-//           pointHitRadius: 8,             // easier to hover
+//           pointRadius: 3,
+//           pointHoverRadius: 5,
+//           pointHitRadius: 8,
 //           pointBackgroundColor: chosenColor,
 //           pointBorderColor: "#FFFFFF",
 //           pointBorderWidth: 1.5,
-//           tension: 0.45,                 // smooth curve
+//           tension: 0.45,
 //           fill: true,
 
-//           backgroundColor: (ctx) => {
-//             // ❌ Remove gradient for second graph
-//             // if (isSecondScore) {
-//             //   return "rgba(0,0,0,0)"; // fully transparent
-//             // }
-
-//                  if (!shouldShowGradient) return "rgba(0,0,0,0)";
-
-//             const { chartArea, ctx: c } = ctx.chart;
-//             if (!chartArea) return hexToRgba(chosenColor, 0.3);
-
-//             const g = c.createLinearGradient(
-//               0,
-//               chartArea.top,
-//               0,
-//               chartArea.bottom
-//             );
-
-//             g.addColorStop(0, hexToRgba(chosenColor, 0.3));
-//             g.addColorStop(1, hexToRgba(chosenColor, 0));
-
-//             return g;
-//           },
-
+//           // ✅ IMPORTANT: don't use function here (causes frequent redraw/flicker)
+//           // We'll inject gradient via chartArea-aware plugin below
+//           backgroundColor: shouldShowGradient
+//             ? hexToRgba(chosenColor, 0.15) // temporary fallback until chart area is known
+//             : "rgba(0,0,0,0)",
 //         },
 //       ],
-//     }),
-//     [labels, values, chosenColor, shouldShowGradient]
-//   );
+//     };
+//   }, [labels, numericValues, chosenColor, shouldShowGradient]);
 
-//   const options = {
-//     responsive: true,
-//     maintainAspectRatio: false,
-//     animation: false,
-//     animations: {
-//       colors: false,
-//       x: { duration: 0 },
-//       y: { duration: 0 },
-//       tension: { duration: 0 },
-//     },
-//     transitions: {
-//       active: { animation: { duration: 0 } },
-//     },
-//     plugins: {
-//       legend: { display: false },
-//       title: { display: false },
-//       tooltip: {
-//         enabled: true,
-//         intersect: false,
-//         mode: "index",
-//         callbacks: {
-//           title(items) {
-//             if (!items?.length) return "";
-//             const idx = items[0].dataIndex;
-//             return labels[idx] || "";
-//           },
-//           label(context) {
-//             const value = context.parsed.y ?? "";
-//             return `Score: ${value}`;
-//           },
-//         },
+//   // ✅ Plugin to set gradient ONLY when chartArea available, and cache it
+//   const gradientPlugin = useMemo(() => {
+//     return {
+//       id: "stableGradientFill",
+//       beforeDatasetsDraw(chart) {
+//         if (!shouldShowGradient) return;
+
+//         const { ctx, chartArea } = chart;
+//         if (!chartArea) return;
+
+//         const key = `${chartArea.top}-${chartArea.bottom}-${chosenColor}`;
+//         if (gradientKeyRef.current !== key) {
+//           const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+//           g.addColorStop(0, hexToRgba(chosenColor, 0.3));
+//           g.addColorStop(1, hexToRgba(chosenColor, 0));
+//           gradientRef.current = g;
+//           gradientKeyRef.current = key;
+//         }
+
+//         // set it on dataset (no re-render required)
+//         const ds = chart.data.datasets?.[0];
+//         if (ds) ds.backgroundColor = gradientRef.current;
 //       },
-//       softShadow: { color: "rgba(218,87,71,0.45)", blur: 0 },
-//     },
-//     elements: {
-//       line: {
-//         borderJoinStyle: "round",
-//         borderCapStyle: "round",
+//     };
+//   }, [chosenColor, shouldShowGradient]);
+
+//   // ✅ Memoize options so it doesn't become "new object" each render
+//   const options = useMemo(() => {
+//     return {
+//       responsive: true,
+//       maintainAspectRatio: false,
+
+//       // if you want ZERO animation
+//       animation: false,
+//       animations: {
+//         colors: false,
+//         x: { duration: 0 },
+//         y: { duration: 0 },
+//         tension: { duration: 0 },
 //       },
-//     },
-//     layout: { padding: { top: 8 } },
-//     scales: {
-//       y: {
-//         min: 0,
-//         max: 100,
-//         // 🔥 KEY LINE: only second graph shows ticks 0,20,...100 from TOP to BOTTOM
-//         reverse: isSecondScore, // true => top=0, bottom=100
-//         ticks: {
-//           stepSize: 20,
-//           color: "#A1A1A1",
-//           font: { size: 10 },
-//         },
-//         grid: { display: false },
-//         border: { display: true, color: "#D9D9D9" },
+//       transitions: {
+//         active: { animation: { duration: 0 } },
 //       },
-//       x: {
-//         ticks: {
-//           color: "#A1A1A1",
-//           font: { size: 10 },
-//           callback(value) {
-//             // in Chart.js v4, `this` is the scale
-//             const label = this.getLabelForValue(value);
-//             const [d, m] = String(label).split(" ");
-//             return [d ?? "", m ?? ""];
+
+//       plugins: {
+//         legend: { display: false },
+//         title: { display: false },
+//         tooltip: {
+//           enabled: true,
+//           intersect: false,
+//           mode: "index",
+//           callbacks: {
+//             title(items) {
+//               if (!items?.length) return "";
+//               const idx = items[0].dataIndex;
+//               return labels[idx] || "";
+//             },
+//             label(context) {
+//               const value = context.parsed.y ?? "";
+//               return `Score: ${value}`;
+//             },
 //           },
 //         },
-//         grid: { display: true },
-//         border: { display: true, color: "#D9D9D9" },
+//         softShadow: { color: "rgba(218,87,71,0.45)", blur: 0 },
 //       },
-//     },
-//   };
+
+//       elements: {
+//         line: {
+//           borderJoinStyle: "round",
+//           borderCapStyle: "round",
+//         },
+//       },
+
+//       layout: { padding: { top: 8 } },
+
+//       scales: {
+//         y: {
+//           min: 0,
+//           max: 100,
+//           reverse: isSecondScore,
+//           ticks: {
+//             stepSize: 20,
+//             color: "#A1A1A1",
+//             font: { size: 10 },
+//           },
+//           grid: { display: false },
+//           border: { display: true, color: "#D9D9D9" },
+//         },
+//         x: {
+//           ticks: {
+//             color: "#A1A1A1",
+//             font: { size: 10 },
+//             callback(value) {
+//               const label = this.getLabelForValue(value);
+//               const [d, m] = String(label).split(" ");
+//               return [d ?? "", m ?? ""];
+//             },
+//           },
+//           grid: { display: true },
+//           border: { display: true, color: "#D9D9D9" },
+//         },
+//       },
+//     };
+//   }, [labels, isSecondScore]);
 
 //   return (
-//     <div className="w-full">
-//       <Line data={data} options={options} />
-//     </div>
+//     <div style={{ width: "450px", height: "200px" }}>
+//     <Line data={data} options={options} plugins={[gradientPlugin]} />
+//   </div>
 //   );
 // }
 
@@ -265,9 +341,10 @@
 
 
 
+
 "use client";
 
-import { useMemo, useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -292,7 +369,9 @@ ChartJS.register(
   Legend
 );
 
-// Soft stroke shadow (optional subtle glow)
+/* -----------------------------
+   Optional: soft stroke shadow
+------------------------------ */
 const SoftShadow = {
   id: "softShadow",
   beforeDatasetsDraw(chart, _args, pluginOpts) {
@@ -311,8 +390,11 @@ const SoftShadow = {
 
 ChartJS.register(SoftShadow);
 
+/* -----------------------------
+   Utils
+------------------------------ */
 const hexToRgba = (hex, alpha = 1) => {
-  let c = hex.replace("#", "");
+  let c = String(hex || "").replace("#", "");
   if (c.length === 3) {
     c = c
       .split("")
@@ -320,122 +402,91 @@ const hexToRgba = (hex, alpha = 1) => {
       .join("");
   }
   const num = parseInt(c, 16);
+  if (!Number.isFinite(num)) return `rgba(228,131,38,${alpha})`; // fallback
   const r = (num >> 16) & 255;
   const g = (num >> 8) & 255;
   const b = num & 255;
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-// const getColorByScore = (type, value, fallback = "#DA5747") => {
-//   const v = Number(value) || 0;
+const normalizeZone = (z) => String(z || "").trim().toLowerCase();
 
-//   switch (type) {
-//     case "Absorptive Metabolism Score":
-//       if (v > 80) return "#3FAF58";
-//       if (v >= 50) return "#FFC412";
-//       return "#DA5747";
-
-//     case "Fermentative Metabolism Score":
-//       if (v < 30) return "#3FAF58";
-//       if (v <= 35) return "#FFC412";
-//       return "#DA5747";
-
-//     case "Fat Metabolism Score":
-//       if (v > 80) return "#3FAF58";
-//       if (v >= 70) return "#FFC412";
-//       return "#DA5747";
-
-//     case "Glucose Metabolism Score":
-//       if (v < 40) return "#3FAF58";
-//       if (v <= 60) return "#FFC412";
-//       return "#DA5747";
-
-//     case "Hepatic Stress Score":
-//       if (v < 30) return "#3FAF58";
-//       if (v <= 60) return "#FFC412";
-//       return "#DA5747";
-
-//     case "Detoxification Metabolism Score":
-//       if (v > 80) return "#3FAF58";
-//       if (v >= 50) return "#FFC412";
-//       return "#DA5747";
-
-//     default:
-//       return fallback;
-//   }
-// };
-
-
-const getColorByScore = (title, value, fallback = "#E48326") => {
-  const v = Number(value) || 0;
-
-  const t = String(title || "").trim().toLowerCase();
-
-  // Nutrient Utilization Trend (absorptive): red 0-50, yellow 50-80, green 80-100
-  if (t === "nutrient utilization trend") {
-    if (v > 80) return "#3FAF58";
-    if (v >= 50) return "#FFC412";
-    return "#E48326";
-  }
-
-  // Digestive Activity Trend (fermentative): green 0-20, yellow 20-30, red 30-100
-  if (t === "digestive activity trend") {
-    if (v < 20) return "#3FAF58";
-    if (v <= 30) return "#FFC412";
-    return "#E48326";
-  }
-
-  // Fuel Utilization Trend (fat): red 0-70, yellow 70-80, green 80-100
-  if (t === "fuel utilization trend") {
-    if (v > 80) return "#3FAF58";
-    if (v >= 70) return "#FFC412";
-    return "#E48326";
-  }
-
-  // Energy Source Trend (glucose): green 0-20, yellow 20-30, red 30-100
-  if (t === "energy source trend") {
-    if (v < 20) return "#3FAF58";
-    if (v <= 30) return "#FFC412";
-    return "#E48326";
-  }
-
-  // Recovery Activity Trend (detoxification): red 0-50, yellow 50-80, green 80-100
-  if (t === "recovery activity trend") {
-    if (v > 80) return "#3FAF58";
-    if (v >= 50) return "#FFC412";
-    return "#E48326";
-  }
-
-  // Metabolic Load Trend (hepatic stress): green 0-20, yellow 20-30, red 30-100
-  if (t === "metabolic load trend") {
-    if (v < 20) return "#3FAF58";
-    if (v <= 30) return "#FFC412";
-    return "#E48326";
-  }
-
+const zoneToColor = (zone, fallback = "#E48326") => {
+  const z = normalizeZone(zone);
+  if (z === "optimal") return "#3FAF58";
+  if (z === "moderate") return "#FFBF2D";
+  if (z === "focus") return "#E48326";
   return fallback;
 };
 
+/**
+ * Legacy fallback (only used when zone is NOT provided)
+ * Feel free to delete this if you will always pass `zone`.
+ */
+const getColorByScore = (type, value, fallback = "#E48326", zoneInfo) => {
+  // If we have zone information from the API, use it directly
+  if (zoneInfo && zoneInfo[type]) {
+    const zone = zoneInfo[type].zone?.toLowerCase();
+    if (zone === "optimal") return "#3FAF58";
+    if (zone === "moderate") return "#FFBF2D";
+    if (zone === "focus") return "#E48326";
+  }
 
+  // Fallback to numeric thresholds if no zone info available
+  const v = Number(value) || 0;
 
+  switch (type) {
+    case "Nutrient Utilization Trend":
+      if (v > 80) return "#3FAF58";      // Optimal
+      if (v >= 50) return "#FFBF2D";     // Moderate
+      return "#E48326";                   // Focus
 
+    case "Digestive Activity Trend":
+      if (v < 30) return "#3FAF58";      // Optimal
+      if (v <= 35) return "#FFBF2D";     // Moderate
+      return "#E48326";                   // Focus
+
+    case "Fuel Utilization Trend":
+      if (v > 80) return "#3FAF58";      // Optimal
+      if (v >= 70) return "#FFBF2D";     // Moderate
+      return "#E48326";                   // Focus
+
+    case "Energy Source Trend":
+      if (v < 40) return "#3FAF58";      // Optimal
+      if (v <= 60) return "#FFBF2D";     // Moderate
+      return "#E48326";                   // Focus
+
+    case "Metabolic Load Trend":
+      // Fix: Match the actual zone definitions from API
+      if (v < 30) return "#FFBF2D";      // Moderate (23.56 is Moderate)
+      if (v <= 60) return "#E48326";     // Focus
+      return "#3FAF58";                   // Optimal
+
+    case "Recovery Activity Trend":
+      if (v > 80) return "#3FAF58";      // Optimal
+      if (v >= 50) return "#FFBF2D";     // Moderate
+      return "#E48326";                   // Focus
+
+    default:
+      return fallback;
+  }
+};
+
+/* -----------------------------
+   Component
+------------------------------ */
 export default function Graph({
   title = "",
   labels = [],
   values = [],
   color = "#E48326",
   showGradient,
+  zone, // ✅ NEW: pass API zone ("Optimal" | "Moderate" | "Focus")
 }) {
-  // const isSecondScore =
-  //   title === "Fermentative Metabolism Score" ||
-  //   title === "Glucose Metabolism Score" ||
-  //   title === "Detoxification Metabolism Score";
-
   const isSecondScore =
-  title === "Digestive Activity Trend" ||
-  title === "Energy Source Trend" ||
-  title === "Metabolic Load Trend";
-
+    title === "Digestive Activity Trend" ||
+    title === "Energy Source Trend" ||
+    title === "Recovery Activity Trend";
 
   const shouldShowGradient =
     typeof showGradient === "boolean" ? showGradient : !isSecondScore;
@@ -444,7 +495,10 @@ export default function Graph({
   const lastNum =
     typeof lastRawValue === "string" ? Number(lastRawValue) : lastRawValue;
 
-  const chosenColor = getColorByScore(title, lastNum, color);
+  // ✅ Priority: zone color (from API) > legacy score-threshold color
+  const chosenColor = zone
+    ? zoneToColor(zone, color)
+    : getColorByScore(title, lastNum, color);
 
   // ✅ convert values once (stable array for chart)
   const numericValues = useMemo(() => {
@@ -476,10 +530,9 @@ export default function Graph({
           tension: 0.45,
           fill: true,
 
-          // ✅ IMPORTANT: don't use function here (causes frequent redraw/flicker)
-          // We'll inject gradient via chartArea-aware plugin below
+          // temporary fallback until chartArea exists
           backgroundColor: shouldShowGradient
-            ? hexToRgba(chosenColor, 0.15) // temporary fallback until chart area is known
+            ? hexToRgba(chosenColor, 0.15)
             : "rgba(0,0,0,0)",
         },
       ],
@@ -498,7 +551,12 @@ export default function Graph({
 
         const key = `${chartArea.top}-${chartArea.bottom}-${chosenColor}`;
         if (gradientKeyRef.current !== key) {
-          const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          const g = ctx.createLinearGradient(
+            0,
+            chartArea.top,
+            0,
+            chartArea.bottom
+          );
           g.addColorStop(0, hexToRgba(chosenColor, 0.3));
           g.addColorStop(1, hexToRgba(chosenColor, 0));
           gradientRef.current = g;
@@ -518,7 +576,7 @@ export default function Graph({
       responsive: true,
       maintainAspectRatio: false,
 
-      // if you want ZERO animation
+      // no animation
       animation: false,
       animations: {
         colors: false,
@@ -549,6 +607,8 @@ export default function Graph({
             },
           },
         },
+
+        // you can set blur=0 to keep it crisp
         softShadow: { color: "rgba(218,87,71,0.45)", blur: 0 },
       },
 
@@ -597,3 +657,342 @@ export default function Graph({
     </div>
   );
 }
+
+
+
+
+
+
+
+// "use client";
+
+// import { useMemo, useRef } from "react";
+// import { Line } from "react-chartjs-2";
+// import {
+//   Chart as ChartJS,
+//   CategoryScale,
+//   LinearScale,
+//   PointElement,
+//   LineElement,
+//   Title,
+//   Tooltip,
+//   Filler,
+//   Legend,
+// } from "chart.js";
+
+// ChartJS.register(
+//   CategoryScale,
+//   LinearScale,
+//   PointElement,
+//   LineElement,
+//   Title,
+//   Tooltip,
+//   Filler,
+//   Legend
+// );
+
+// // Soft stroke shadow (optional subtle glow)
+// const SoftShadow = {
+//   id: "softShadow",
+//   beforeDatasetsDraw(chart, _args, pluginOpts) {
+//     const { ctx } = chart;
+//     ctx.save();
+//     ctx.shadowColor = pluginOpts?.color ?? "rgba(218,87,71,0.45)";
+//     ctx.shadowBlur = pluginOpts?.blur ?? 6;
+//     ctx.shadowOffsetY = 0;
+//     ctx.lineJoin = "round";
+//     ctx.lineCap = "round";
+//   },
+//   afterDatasetsDraw(chart) {
+//     chart.ctx.restore();
+//   },
+// };
+
+// ChartJS.register(SoftShadow);
+
+// const hexToRgba = (hex, alpha = 1) => {
+//   let c = hex.replace("#", "");
+//   if (c.length === 3) {
+//     c = c
+//       .split("")
+//       .map((ch) => ch + ch)
+//       .join("");
+//   }
+//   const num = parseInt(c, 16);
+//   const r = (num >> 16) & 255;
+//   const g = (num >> 8) & 255;
+//   const b = num & 255;
+//   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+// };
+
+// // const getColorByScore = (type, value, fallback = "#DA5747") => {
+// //   const v = Number(value) || 0;
+
+// //   switch (type) {
+// //     case "Absorptive Metabolism Score":
+// //       if (v > 80) return "#3FAF58";
+// //       if (v >= 50) return "#FFC412";
+// //       return "#DA5747";
+
+// //     case "Fermentative Metabolism Score":
+// //       if (v < 30) return "#3FAF58";
+// //       if (v <= 35) return "#FFC412";
+// //       return "#DA5747";
+
+// //     case "Fat Metabolism Score":
+// //       if (v > 80) return "#3FAF58";
+// //       if (v >= 70) return "#FFC412";
+// //       return "#DA5747";
+
+// //     case "Glucose Metabolism Score":
+// //       if (v < 40) return "#3FAF58";
+// //       if (v <= 60) return "#FFC412";
+// //       return "#DA5747";
+
+// //     case "Hepatic Stress Score":
+// //       if (v < 30) return "#3FAF58";
+// //       if (v <= 60) return "#FFC412";
+// //       return "#DA5747";
+
+// //     case "Detoxification Metabolism Score":
+// //       if (v > 80) return "#3FAF58";
+// //       if (v >= 50) return "#FFC412";
+// //       return "#DA5747";
+
+// //     default:
+// //       return fallback;
+// //   }
+// // };
+
+
+// const getColorByScore = (title, value, fallback = "#E48326") => {
+//   const v = Number(value) || 0;
+
+//   const t = String(title || "").trim().toLowerCase();
+
+//   // Nutrient Utilization Trend (absorptive): red 0-50, yellow 50-80, green 80-100
+//   if (t === "nutrient utilization trend") {
+//     if (v > 80) return "#3FAF58";
+//     if (v >= 50) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   // Digestive Activity Trend (fermentative): green 0-20, yellow 20-30, red 30-100
+//   if (t === "digestive activity trend") {
+//     if (v < 20) return "#3FAF58";
+//     if (v <= 30) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   // Fuel Utilization Trend (fat): red 0-70, yellow 70-80, green 80-100
+//   if (t === "fuel utilization trend") {
+//     if (v > 80) return "#3FAF58";
+//     if (v >= 70) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   // Energy Source Trend (glucose): green 0-20, yellow 20-30, red 30-100
+//   if (t === "energy source trend") {
+//     if (v < 20) return "#3FAF58";
+//     if (v <= 30) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   // Recovery Activity Trend (detoxification): red 0-50, yellow 50-80, green 80-100
+//   if (t === "recovery activity trend") {
+//     if (v > 80) return "#3FAF58";
+//     if (v >= 50) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   // Metabolic Load Trend (hepatic stress): green 0-20, yellow 20-30, red 30-100
+//   if (t === "metabolic load trend") {
+//     if (v < 20) return "#3FAF58";
+//     if (v <= 30) return "#FFC412";
+//     return "#E48326";
+//   }
+
+//   return fallback;
+// };
+
+
+
+
+// export default function Graph({
+//   title = "",
+//   labels = [],
+//   values = [],
+//   color = "#E48326",
+//   showGradient,
+// }) {
+//   // const isSecondScore =
+//   //   title === "Fermentative Metabolism Score" ||
+//   //   title === "Glucose Metabolism Score" ||
+//   //   title === "Detoxification Metabolism Score";
+
+//   const isSecondScore =
+//   title === "Digestive Activity Trend" ||
+//   title === "Energy Source Trend" ||
+//   title === "Metabolic Load Trend";
+
+
+//   const shouldShowGradient =
+//     typeof showGradient === "boolean" ? showGradient : !isSecondScore;
+
+//   const lastRawValue = values?.length ? values[values.length - 1] : 0;
+//   const lastNum =
+//     typeof lastRawValue === "string" ? Number(lastRawValue) : lastRawValue;
+
+//   const chosenColor = getColorByScore(title, lastNum, color);
+
+//   // ✅ convert values once (stable array for chart)
+//   const numericValues = useMemo(() => {
+//     return (values || []).map((v) => {
+//       const n = typeof v === "string" ? Number(v) : v;
+//       return Number.isFinite(n) ? n : 0;
+//     });
+//   }, [values]);
+
+//   // ✅ Keep a gradient cache so it doesn't recreate every render
+//   const gradientRef = useRef(null);
+//   const gradientKeyRef = useRef("");
+
+//   const data = useMemo(() => {
+//     return {
+//       labels,
+//       datasets: [
+//         {
+//           label: "Score",
+//           data: numericValues,
+//           borderColor: chosenColor,
+//           borderWidth: 3,
+//           pointRadius: 3,
+//           pointHoverRadius: 5,
+//           pointHitRadius: 8,
+//           pointBackgroundColor: chosenColor,
+//           pointBorderColor: "#FFFFFF",
+//           pointBorderWidth: 1.5,
+//           tension: 0.45,
+//           fill: true,
+
+//           // ✅ IMPORTANT: don't use function here (causes frequent redraw/flicker)
+//           // We'll inject gradient via chartArea-aware plugin below
+//           backgroundColor: shouldShowGradient
+//             ? hexToRgba(chosenColor, 0.15) // temporary fallback until chart area is known
+//             : "rgba(0,0,0,0)",
+//         },
+//       ],
+//     };
+//   }, [labels, numericValues, chosenColor, shouldShowGradient]);
+
+//   // ✅ Plugin to set gradient ONLY when chartArea available, and cache it
+//   const gradientPlugin = useMemo(() => {
+//     return {
+//       id: "stableGradientFill",
+//       beforeDatasetsDraw(chart) {
+//         if (!shouldShowGradient) return;
+
+//         const { ctx, chartArea } = chart;
+//         if (!chartArea) return;
+
+//         const key = `${chartArea.top}-${chartArea.bottom}-${chosenColor}`;
+//         if (gradientKeyRef.current !== key) {
+//           const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+//           g.addColorStop(0, hexToRgba(chosenColor, 0.3));
+//           g.addColorStop(1, hexToRgba(chosenColor, 0));
+//           gradientRef.current = g;
+//           gradientKeyRef.current = key;
+//         }
+
+//         // set it on dataset (no re-render required)
+//         const ds = chart.data.datasets?.[0];
+//         if (ds) ds.backgroundColor = gradientRef.current;
+//       },
+//     };
+//   }, [chosenColor, shouldShowGradient]);
+
+//   // ✅ Memoize options so it doesn't become "new object" each render
+//   const options = useMemo(() => {
+//     return {
+//       responsive: true,
+//       maintainAspectRatio: false,
+
+//       // if you want ZERO animation
+//       animation: false,
+//       animations: {
+//         colors: false,
+//         x: { duration: 0 },
+//         y: { duration: 0 },
+//         tension: { duration: 0 },
+//       },
+//       transitions: {
+//         active: { animation: { duration: 0 } },
+//       },
+
+//       plugins: {
+//         legend: { display: false },
+//         title: { display: false },
+//         tooltip: {
+//           enabled: true,
+//           intersect: false,
+//           mode: "index",
+//           callbacks: {
+//             title(items) {
+//               if (!items?.length) return "";
+//               const idx = items[0].dataIndex;
+//               return labels[idx] || "";
+//             },
+//             label(context) {
+//               const value = context.parsed.y ?? "";
+//               return `Score: ${value}`;
+//             },
+//           },
+//         },
+//         softShadow: { color: "rgba(218,87,71,0.45)", blur: 0 },
+//       },
+
+//       elements: {
+//         line: {
+//           borderJoinStyle: "round",
+//           borderCapStyle: "round",
+//         },
+//       },
+
+//       layout: { padding: { top: 8 } },
+
+//       scales: {
+//         y: {
+//           min: 0,
+//           max: 100,
+//           reverse: isSecondScore,
+//           ticks: {
+//             stepSize: 20,
+//             color: "#A1A1A1",
+//             font: { size: 10 },
+//           },
+//           grid: { display: false },
+//           border: { display: true, color: "#D9D9D9" },
+//         },
+//         x: {
+//           ticks: {
+//             color: "#A1A1A1",
+//             font: { size: 10 },
+//             callback(value) {
+//               const label = this.getLabelForValue(value);
+//               const [d, m] = String(label).split(" ");
+//               return [d ?? "", m ?? ""];
+//             },
+//           },
+//           grid: { display: true },
+//           border: { display: true, color: "#D9D9D9" },
+//         },
+//       },
+//     };
+//   }, [labels, isSecondScore]);
+
+//   return (
+//     <div className="w-full h-full">
+//       <Line data={data} options={options} plugins={[gradientPlugin]} />
+//     </div>
+//   );
+// }

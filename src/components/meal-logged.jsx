@@ -819,6 +819,7 @@ useEffect(() => {
   
     const startDate = formatDateForApi(startDateObj);
     const endDate = formatDateForApi(endDateObj);
+    console.log("endDate822:-", endDate);
   
     fetchWeeklyAnalysis(startDate, endDate, dietPlanId, daysPayload);
   }, [
@@ -884,7 +885,8 @@ useEffect(() => {
     }
   };
 
-  const visibleWeeks = (weeks || []).slice(visibleWeekStart, visibleWeekStart + visibleWeeksCount);
+  const visibleWeeks = (weeks || []).slice(visibleWeekStart, visibleWeekStart + visibleWeeksCount); 
+  console.log("visibleWeeks888:-", visibleWeeks);
 
   const handleCreatePlanClick = () => {
     localStorage.clear();

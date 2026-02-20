@@ -115,6 +115,88 @@ Tracked At {formatTrackedAt(testDate)}
             <div className="flex-1 min-w-0">
               <div className="flex flex-col gap-5">
 
+  {/* Glucose -Vs- Fat Metabolism */}
+                <div className="bg-white rounded-[10px] py-2.5 px-5 w-full">
+                  <div className="flex gap-2.5 items-center mb-[5px]">
+                     <span className="text-[#252525] text-[12px] font-semibold leading-[110%]">
+                      {/* Glucose -Vs- Fat Metabolism */}
+                      Fuel & Energy Trend
+                    </span>
+                    <div className="p-2">
+                      <Image
+                        src="/icons/healthicons_pancreas-outline.svg"
+                        alt="healthicons_pancreas-outline"
+                        width={24}
+                        height={24}
+                         className="opacity-0"
+                      />
+                    </div>
+                   
+                  </div>
+
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 p-4 border border-[#E1E6ED] rounded-[10px]">
+                      <span className="text-[#535359] text-[10px] font-normal block mb-2">
+                        {/* Fat Metabolism Score */}
+                        Fuel Utilization Trend
+                      </span>
+                      <div className="flex items-center">
+                        <p className="text-[#252525] text-[20px] md:text-[25px] font-semibold">
+                          {/* {scores?.fat ?? '-'}% */}
+                          {/* {typeof scores?.fat === "number"
+                            ? Math.floor(scores.fat)
+                            : "-"
+                          }% */}
+                          {typeof scores?.fat === "number"
+                            ? scores.fat.toFixed(0)
+                               : "-"
+                            }%
+
+                        </p>
+                        <div className="mx-3 h-4 w-px bg-[#252525]"></div>
+                        {/* <p className={`text-[20px] md:text-[25px] font-semibold ${getZoneColor(metabolismScores?.fat_metabolism?.zone)}`}>
+                          {metabolismScores?.fat_metabolism?.zone ?? '-'}
+                        </p> */}
+                         <p className={`text-[20px] md:text-[25px] font-semibold ${getZoneColor(metabolismScores?.Fuel_Utilization_Trend?.zone)}`}>
+                          {metabolismScores?.Fuel_Utilization_Trend?.zone ?? '-'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex-1 p-4 border border-[#E1E6ED] rounded-[10px]">
+                      <span className="text-[#535359] text-[10px] font-normal block mb-[5px]">
+                        {/* Glucose Metabolism Score */}
+                        Energy Source Trend
+                      </span>
+                      <div className="flex items-center">
+                        <p className="text-[#252525] text-[20px] md:text-[25px] font-semibold">
+                          {/* {scores?.glucose ?? '-'}% */}
+                          {/* {typeof scores?.glucose === "number"
+                            ? Math.floor(scores.glucose)
+                            : "-"
+                          }% */}
+                          {typeof scores?.glucose === "number"
+                               ? scores.glucose.toFixed(0)
+                                  : "-"
+                                  }%
+
+                        </p>
+                        <div className="mx-3 h-4 w-px bg-[#252525]"></div>
+                        {/* <p className={`text-[20px] md:text-[25px] font-semibold ${getZoneColor(metabolismScores?.glucose_metabolism?.zone)}`}>
+                          {metabolismScores?.glucose_metabolism?.zone ?? '-'}
+                        </p> */}
+                          <p className={`text-[20px] md:text-[25px] font-semibold ${getZoneColor(metabolismScores?.Energy_Source_Trend?.zone)}`}>
+                          {metabolismScores?.Energy_Source_Trend?.zone ?? '-'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+
+
+
                     {/* Gut Fermentation Metabolism */}
                 <div className="bg-white rounded-[10px] py-2.5 px-5 w-full">
                   <div className="flex gap-2.5 items-center mb-[5px]">
@@ -195,83 +277,7 @@ Tracked At {formatTrackedAt(testDate)}
                 </div>
               
 
-                {/* Glucose -Vs- Fat Metabolism */}
-                <div className="bg-white rounded-[10px] py-2.5 px-5 w-full">
-                  <div className="flex gap-2.5 items-center mb-[5px]">
-                     <span className="text-[#252525] text-[12px] font-semibold leading-[110%]">
-                      {/* Glucose -Vs- Fat Metabolism */}
-                      Fuel & Energy Trend
-                    </span>
-                    <div className="p-2">
-                      <Image
-                        src="/icons/healthicons_pancreas-outline.svg"
-                        alt="healthicons_pancreas-outline"
-                        width={24}
-                        height={24}
-                         className="opacity-0"
-                      />
-                    </div>
-                   
-                  </div>
-
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <div className="flex-1 p-4 border border-[#E1E6ED] rounded-[10px]">
-                      <span className="text-[#535359] text-[10px] font-normal block mb-2">
-                        {/* Fat Metabolism Score */}
-                        Fuel Utilization Trend
-                      </span>
-                      <div className="flex items-center">
-                        <p className="text-[#252525] text-[20px] md:text-[25px] font-semibold">
-                          {/* {scores?.fat ?? '-'}% */}
-                          {/* {typeof scores?.fat === "number"
-                            ? Math.floor(scores.fat)
-                            : "-"
-                          }% */}
-                          {typeof scores?.fat === "number"
-  ? scores.fat.toFixed(0)
-  : "-"
-}%
-
-                        </p>
-                        <div className="mx-3 h-4 w-px bg-[#252525]"></div>
-                        {/* <p className={`text-[20px] md:text-[25px] font-semibold ${getZoneColor(metabolismScores?.fat_metabolism?.zone)}`}>
-                          {metabolismScores?.fat_metabolism?.zone ?? '-'}
-                        </p> */}
-                         <p className={`text-[20px] md:text-[25px] font-semibold ${getZoneColor(metabolismScores?.Fuel_Utilization_Trend?.zone)}`}>
-                          {metabolismScores?.Fuel_Utilization_Trend?.zone ?? '-'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex-1 p-4 border border-[#E1E6ED] rounded-[10px]">
-                      <span className="text-[#535359] text-[10px] font-normal block mb-[5px]">
-                        {/* Glucose Metabolism Score */}
-                        Energy Source Trend
-                      </span>
-                      <div className="flex items-center">
-                        <p className="text-[#252525] text-[20px] md:text-[25px] font-semibold">
-                          {/* {scores?.glucose ?? '-'}% */}
-                          {/* {typeof scores?.glucose === "number"
-                            ? Math.floor(scores.glucose)
-                            : "-"
-                          }% */}
-                          {typeof scores?.glucose === "number"
-  ? scores.glucose.toFixed(0)
-  : "-"
-}%
-
-                        </p>
-                        <div className="mx-3 h-4 w-px bg-[#252525]"></div>
-                        {/* <p className={`text-[20px] md:text-[25px] font-semibold ${getZoneColor(metabolismScores?.glucose_metabolism?.zone)}`}>
-                          {metabolismScores?.glucose_metabolism?.zone ?? '-'}
-                        </p> */}
-                          <p className={`text-[20px] md:text-[25px] font-semibold ${getZoneColor(metabolismScores?.Energy_Source_Trend?.zone)}`}>
-                          {metabolismScores?.Energy_Source_Trend?.zone ?? '-'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              
 
             
 
