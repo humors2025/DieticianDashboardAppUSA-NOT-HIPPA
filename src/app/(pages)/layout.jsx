@@ -4,7 +4,7 @@ export default function AppLayout({children}){
     return(
         <>
         <Header/>
-        <main className="mx-[25px] mt-[30px] mb-[37px]">
+        <main className="mx-[25px]  my-3">
           {children} 
         </main>
         </>

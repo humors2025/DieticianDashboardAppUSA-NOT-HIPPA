@@ -106,11 +106,19 @@ const handleSubmit = async (e) => {
     const dieticianId = res?.dietician?.dietician_id || "";
 
     // Default routing based on dietician type
-    if (B2B2C.includes(dieticianId)) {
-      router.push("/partners/dashboard");
-    } else {
-      router.push("/dashboard");
-    }
+    // if (B2B2C.includes(dieticianId)) {
+    //   router.push("/partners/dashboard");
+    // } else {
+    //   router.push("/dashboard");
+    // }
+
+    if (dieticianId === "Qua") {
+  router.push("/dashboard");
+} else {
+  router.push("/partners/dashboard");
+}
+
+
   } catch (error) {
     let errorMessage = "Invalid credentials";
 
@@ -168,7 +176,7 @@ const handleSubmit = async (e) => {
                 peer-not-placeholder-shown:top-[-10px] peer-not-placeholder-shown:text-sm
                 bg-white px-1"
             >
-              Enter Dietician ID
+              Enter Email ID
             </label>
           </div>
 

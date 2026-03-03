@@ -250,6 +250,7 @@ export const fetchWeeklyAnalysisComplete1 = async (requestData) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(requestData),
+      timeoutMs: 180000,
   });
 };
 

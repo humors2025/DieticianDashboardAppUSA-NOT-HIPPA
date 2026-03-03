@@ -11,7 +11,9 @@ import MealTracked from "./meal-tracked";
 
 export default function MealLogged() {
   const [activeFilter, setActiveFilter] = useState("low");
+  console.log("activeFilter14:-", activeFilter);
   const [weeklyAnalysisData, setWeeklyAnalysisData] = useState([]);
+  console.log("weeklyAnalysisData15:-", weeklyAnalysisData);
   const [apiMessage, setApiMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -80,6 +82,7 @@ export default function MealLogged() {
   };
 
   const dataArr = Array.isArray(weeklyAnalysisData) ? weeklyAnalysisData : [];
+  console.log("dataArr85:-", dataArr);
   const totalFoods = dataArr.length;
 
   const avgScore = totalFoods
@@ -731,6 +734,12 @@ const fetchWeeklyAnalysis = async (startDate, endDate, dietPlanId, daysPayload) 
 };
 
 
+
+
+
+
+
+
 useEffect(() => {
   const activePlan = clientProfile?.plans_summary?.active?.[0];
 
@@ -787,48 +796,48 @@ useEffect(() => {
 
 
 
-  useEffect(() => {
-    const activePlan = clientProfile?.plans_summary?.active?.[0];
+  // useEffect(() => {
+  //   const activePlan = clientProfile?.plans_summary?.active?.[0];
   
-    let dietPlanId = null;
-    let planStart = null;
-    let planEnd = null;
+  //   let dietPlanId = null;
+  //   let planStart = null;
+  //   let planEnd = null;
   
-    if (activePlan) {
-      dietPlanId = activePlan.id;
-      planStart = toLocalMidnight(activePlan.plan_start_date);
-      planEnd = toLocalMidnight(activePlan.plan_end_date);
-    }
+  //   if (activePlan) {
+  //     dietPlanId = activePlan.id;
+  //     planStart = toLocalMidnight(activePlan.plan_start_date);
+  //     planEnd = toLocalMidnight(activePlan.plan_end_date);
+  //   }
   
-    const weekIdxToUse =
-      selectedWeekIdx === null ? currentWeekIdx : selectedWeekIdx;
+  //   const weekIdxToUse =
+  //     selectedWeekIdx === null ? currentWeekIdx : selectedWeekIdx;
   
-    const range = getWeekDateRange(weekIdxToUse);
-    if (!range) return;
+  //   const range = getWeekDateRange(weekIdxToUse);
+  //   if (!range) return;
   
-    let startDateObj = range.start;
-    let endDateObj = range.end;
+  //   let startDateObj = range.start;
+  //   let endDateObj = range.end;
   
-    if (planStart && startDateObj < planStart) {
-      startDateObj = planStart;
-    }
+  //   if (planStart && startDateObj < planStart) {
+  //     startDateObj = planStart;
+  //   }
   
-    if (planEnd && endDateObj > planEnd) {
-      endDateObj = planEnd;
-    }
+  //   if (planEnd && endDateObj > planEnd) {
+  //     endDateObj = planEnd;
+  //   }
   
-    const startDate = formatDateForApi(startDateObj);
-    const endDate = formatDateForApi(endDateObj);
-    console.log("endDate822:-", endDate);
+  //   const startDate = formatDateForApi(startDateObj);
+  //   const endDate = formatDateForApi(endDateObj);
+  //   console.log("endDate822:-", endDate);
   
-    fetchWeeklyAnalysis(startDate, endDate, dietPlanId, daysPayload);
-  }, [
-    clientProfile,
-    selectedWeekIdx,
-    currentWeekIdx,
-    weeks?.length ?? 0,
-    daysPayload
-  ]);
+  //   fetchWeeklyAnalysis(startDate, endDate, dietPlanId, daysPayload);
+  // }, [
+  //   clientProfile,
+  //   selectedWeekIdx,
+  //   currentWeekIdx,
+  //   weeks?.length ?? 0,
+  //   daysPayload
+  // ]);
   
   // Clear daysPayload when week changes
   useEffect(() => {

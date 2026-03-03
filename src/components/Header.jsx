@@ -308,7 +308,9 @@ const hideHeaderPaths = [
   const clientRelatedPaths = ["/client", "/planhistory", "/profile"];
   const partnerClientRelatedPaths = ["/partners/client", "/partners/planhistory", "/partners/profile"];
 
-  const isPartnerUser = dietician?.dietician_id === "RespyrD01";
+  // const isPartnerUser = dietician?.dietician_id === "RespyrD01";
+  const dieticianId = dietician?.dietician_id || "";
+const isPartnerUser = dieticianId !== "" && dieticianId !== "Qua";
 
   // ✅ central mapping for partner routes
   const partnerRouteMap = {
