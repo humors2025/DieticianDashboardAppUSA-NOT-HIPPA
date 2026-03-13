@@ -109,7 +109,7 @@ export default function ClientLists() {
         </div>
 
         {/* 👇 Scrollable Clients List */}
-        <div className="max-h-[500px] overflow-y-auto">
+        <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
           {clients.map((client, index) => (
             <div
               key={index}

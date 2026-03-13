@@ -4,6 +4,7 @@ import 'react-responsive-modal/styles.css';
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import Providers  from "./providers";
+import DevToolsBlocker from "./devtoolsBlocker";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -28,7 +29,7 @@ export default function RootLayout({ children }) {
     <Providers>
           <div 
           className="">
-
+ {/* <DevToolsBlocker /> */}
             {children}
           </div>
 

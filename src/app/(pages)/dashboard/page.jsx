@@ -69,19 +69,19 @@ const Dashboard = () => {
         {/* <div className='flex gap-5'> */}
         {/* <DashboardSidebar/> */}
      <div className="flex flex-col gap-5 w-full">
-          <GoalTracker/>
+          <GoalTracker/> 
 
         </div>
 
-        {/* <div className="flex gap-5 w-full bg-white px-[15px] pt-2.5 pb-1.5 rounded-[15px]">
-          <div className="flex-shrink-0">
+ <div className="flex gap-5 w-full bg-white px-[15px] pt-2.5 pb-1.5 rounded-[15px]">
+          {/* <div className="flex-shrink-0">
             <Calender />
           </div>
 
           <div className="flex-1">
             <ClientMonitor />
-          </div>
-        </div> */}
+          </div> */}
+        </div>
         {/* </div> */}
       </ProtectedRoute>
     </>
